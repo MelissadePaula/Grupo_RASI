@@ -1,106 +1,185 @@
 # Grupo_RASI
 Trabalho avaliativo referente ao 3º Bimestre da matéria RASI do ano de  2026 
 
-Trabalho Bimestral RASI
 
-Integrantes: Melissa, Gabriel R., Mariah, Sofia e Júlia
-Local: Campos do Jordão, 2026
+PARTE A — Configurando a rede
+1. Configurando o modo Bridge
 
-Repositório do projeto
+Primeiramente, configure a placa de rede da máquina virtual em modo Bridge.
 
-O trabalho utiliza o seguinte repositório do GitHub:
+Na configuração da placa de rede:
 
-https://github.com/MelissadePaula/Grupo_RASI.git
+Ligado a: Placa em modo Bridge
+Nome: Realtek PCIe GbE Family Controller
+Tipo de Placa: Intel PRO/1000 MT Desktop (82540EM)
+Promiscuous Mode: Recusar
+Virtual Cable Connected: ativado
+2. Descobrindo o próprio IP
 
-PARTE A
-1. Configurando em modo Bridge
+Abra o terminal e execute:
 
-Nesta etapa, foi realizada a configuração da máquina em modo Bridge.
+hostname -I
 
-O objetivo é permitir que a máquina virtual ou ambiente utilizado tenha acesso à rede de forma semelhante a outro dispositivo conectado à mesma rede.
+O resultado apresentado foi:
 
-2. Descobrindo nosso próprio IP
+10.125.131.156 172.17.0.1
 
-Depois da configuração de rede, foi realizada a identificação do endereço IP da própria máquina.
+Utilize o endereço:
 
-O endereço IP é necessário para que seja possível realizar a comunicação entre as máquinas e acessar os serviços posteriormente.
-
+10.125.131.156
 3. Conectando ao servidor da máquina hospedeira
 
-Após descobrir o endereço IP, foi realizada a conexão com o servidor da máquina hospedeira.
+No computador hospedeiro, abra o terminal e execute:
 
-Essa etapa permite estabelecer a comunicação entre o ambiente utilizado no trabalho e a máquina que está hospedando o serviço.
+ssh aluno@10.125.131.156
 
-As três etapas da Parte A são: configuração em modo Bridge, descoberta do próprio IP e conexão ao servidor da máquina hospedeira.
+Quando aparecer a pergunta:
 
-PARTE B
-4. Atualizando o sudo
+Are you sure you want to continue connecting (yes/no/[fingerprint])?
 
-Primeiramente, foi realizada a atualização dos pacotes relacionados ao sudo.
+Digite:
 
-O sudo permite executar determinados comandos com privilégios administrativos no sistema Linux.
+yes
+
+Em seguida, informe a senha do usuário.
+
+Após a autenticação, a conexão com o servidor será estabelecida.
+
+PARTE B — Docker
+4. Atualizando o sistema
+
+No terminal, execute:
+
+sudo apt update
+
+Aguarde a atualização dos pacotes.
 
 5. Verificando a versão do Docker
 
-Em seguida, foi verificada a versão instalada do Docker.
+Execute:
 
-Essa verificação permite confirmar se o Docker está instalado e disponível para utilização no sistema.
+docker -version
 
-Essas duas ações correspondem à Parte B do trabalho: atualização do sudo e verificação da versão do Docker.
+O terminal apresentará a versão ou as informações relacionadas ao Docker.
 
-PARTE C
-6. Rodando o Docker
+6. Testando o Docker
 
-Nesta etapa, o Docker foi executado para permitir a utilização dos recursos de containers necessários para o projeto.
+Execute:
 
+docker run hello-world
+
+O Docker iniciará o container de teste e apresentará a mensagem:
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+PARTE C — Criando o projeto Flask
 7. Instalando a biblioteca tree
 
-Foi instalada a biblioteca/comando tree.
+Execute:
 
-O tree é utilizado para visualizar a estrutura de pastas e arquivos de um projeto de maneira organizada.
-
+sudo apt install tree
 8. Criando a pasta do projeto
 
-Foi criada uma pasta destinada ao projeto.
+Crie a pasta principal:
 
-Essa pasta será utilizada para armazenar os arquivos necessários para a execução do projeto com Docker.
+mkdir projeto-flask
 
+Depois, crie a pasta da aplicação:
+
+mkdir projeto-flask/app
 9. Criando os arquivos
 
-Depois de criar a pasta, foram criados os arquivos necessários para o projeto.
+Crie o Dockerfile:
 
-Esses arquivos serão utilizados nas configurações e na execução do container.
+touch projeto-flask/Dockerfile
+
+Crie o arquivo da aplicação Flask:
+
+touch projeto-flask/app/app.py
+
+Crie o arquivo de dependências:
+
+touch projeto-flask/app/requirements.txt
+
+A estrutura do projeto ficará:
+
+projeto-flask/
+├── Dockerfile
+└── app/
+    ├── app.py
+    └── requirements.txt
 
 10. Configurando o Dockerfile
 
-Foi criado e configurado o Dockerfile.
+Abra o arquivo Dockerfile e escreva:
 
-O Dockerfile contém as instruções utilizadas pelo Docker para construir a imagem do projeto.
+FROM python:3.14-slim
+WORKDIR /app
+COPY app/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY app/ .
+EXPOSE 5000
+CMD ["python", "app.py"]
+
+Salve o arquivo.
 
 11. Construindo a imagem
 
-Depois da configuração do Dockerfile, foi realizada a construção da imagem Docker.
+Entre na pasta do projeto:
 
-A imagem contém o ambiente necessário para executar o projeto.
+cd projeto-flask
 
-Na Parte C, o documento registra as etapas de execução do Docker, instalação do tree, criação da pasta e dos arquivos, configuração do Dockerfile e construção da imagem.
+Depois execute:
+
+docker build -t flask-app .
+
+A imagem flask-app será construída a partir do Dockerfile.
 
 12. Mapeando a porta
 
-Após construir a imagem, foi realizado o mapeamento da porta.
+Execute:
 
-O mapeamento permite que uma porta do computador hospedeiro seja conectada à porta utilizada pelo serviço dentro do container.
+docker run -d -p 5000:5000 --name meu-flask flask-app
 
-13. Verificando o HTTP da máquina hospedeira
+O Docker iniciará o container utilizando a porta 5000.
 
-Em seguida, foi realizada uma verificação do HTTP da máquina hospedeira.
+13. Acessando a aplicação Flask
 
-Essa etapa serve para verificar o acesso ao serviço através do protocolo HTTP.
+Abra o navegador e acesse:
 
-14. Verificando o status do Docker
+10.125.131.156:5000
 
-Por último, foi verificado o status do Docker.
+A aplicação Flask será exibida no navegador com a mensagem:
 
-Essa verificação permite confirmar a situação do serviço Docker e verificar se ele está funcionando corretamente.
+Minha primeira aplicação Flask
 
-As etapas finais registradas no documento são o mapeamento da porta, a verificação do HTTP da máquina hospedeira e a verificação do status do Docker.
+Aplicação executando dentro de um container Docker
+
+14. Verificando o container
+
+No terminal, execute:
+
+docker ps
+
+O comando exibirá os containers em execução e o mapeamento da porta:
+
+0.0.0.0:5000->5000/tcp
+15. Verificando os logs do Flask
+
+Execute:
+
+docker logs meu-flask
+
+Os logs mostrarão a execução do Flask:
+
+* Serving Flask app 'app'
+* Debug mode: off
+* Running on all addresses (0.0.0.0)
+* Running on http://127.0.0.1:5000
+* Running on http://172.17.0.2:5000
+
+Também serão registrados os acessos realizados pelo navegador:
+
+GET / HTTP/1.1 200
+GET /favicon.ico HTTP/1.1 404
